@@ -352,7 +352,7 @@ namespace HM
             String sFields = sBody.Mid(lStart, lLength);
             oPart.GetHeaderFieldsNOT() = StringParser::SplitString(sFields, " ");
             oPart.SetShowBodyHeaderFieldsNOT(true);
-
+            oPart.SetShowMime(true);
             // Strip away the header fields part from the Body.
             // If we don't do this, we will parse the same string
             // as header.fields below.

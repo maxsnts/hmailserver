@@ -264,6 +264,16 @@ namespace HM
       }
       else
       {
+         //check if start is not over buffer
+         if (iOctetStart > iBufferSize)
+         {
+            ////reset to start?
+            //iOctetStart = 0;
+            //alt
+            iOctetStart = iBufferSize;
+            iOctetCount = 0;
+         }
+
          // Jump forward to the start of the buffer.
          iBufferSize -= iOctetStart;
 
@@ -283,12 +293,13 @@ namespace HM
    }
 
    std::shared_ptr<MimeBody> 
-   IMAPFetch::GetBodyPartByRecursiveIdentifier_(std::shared_ptr<MimeBody> pBody, const String &sName)
+   IMAPFetch::GetBodyPartByRecursiveIdentifier_(std::shared_ptr<MimeBody> pBody, IMAPFetchParser::BodyPart& oPart)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Returns a body part by a given identifier. An identifier can be 1, 2, 1.2 etc.
    //---------------------------------------------------------------------------()
    {
+      String sName = oPart.GetName();
       if (!pBody || sName.IsEmpty())
       {
          std::shared_ptr<MimeBody> pEmpty;
@@ -320,7 +331,7 @@ namespace HM
                return pBody;
             }
 
-            if (pBody->IsEncapsulatedRFC822Message())
+            if (pBody->IsEncapsulatedRFC822Message() && !oPart.GetShowMime())
             {
                try
                {
@@ -347,7 +358,8 @@ namespace HM
 
 
    std::shared_ptr<ByteBuffer> 
-   IMAPFetch::GetByteBufferByBodyPart_(const String &messageFileName, std::shared_ptr<MimeBody> pBodyPart, IMAPFetchParser::BodyPart &oPart)
+   IMAPFetch::GetByteBufferByBodyPart_(const String &messageFileName, std::shared_ptr<MimeBody> pBodyPart
+      , IMAPFetchParser::BodyPart &oPart)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Returns a buffer containing the data for the given body/part
@@ -366,7 +378,7 @@ namespace HM
       if (!oPart.GetName().IsEmpty())
       {
          String sMimePart;
-         pBodyPart  = GetBodyPartByRecursiveIdentifier_(pBodyPart, oPart.GetName());
+         pBodyPart  = GetBodyPartByRecursiveIdentifier_(pBodyPart, oPart);
 
          if (!pBodyPart)
             return pOutBuf;
@@ -418,10 +430,17 @@ namespace HM
          int iSize = FileUtilities::FileSize(messageFileName);
          GetBytesToSend_(iSize, oPart, iByteStart, iByteCount);
 
-         BYTE *pBuf = new BYTE[iByteCount];
-         FileUtilities::ReadFileToBuf(messageFileName, pBuf, iByteStart, iByteCount);
-         pOutBuf->Add(pBuf, iByteCount);
-         delete [] pBuf;
+         //read message, but only if we need any data request
+         if (iByteCount > 0)
+         {
+            BYTE* pBuf = new BYTE[iByteCount];
+
+            //LOG_APPLICATION(Formatter::Format(_T("IMAPFetch.cpp; FileUtilities::ReadFileToBuf messageFileName {0}, iSize {1}, iByteStart {2}, iByteCount {3}."), messageFileName, iSize, iByteStart, iByteCount));
+
+            FileUtilities::ReadFileToBuf(messageFileName, pBuf, iByteStart, iByteCount);
+            pOutBuf->Add(pBuf, iByteCount);
+            delete[] pBuf;
+         }
       }
       else if (oPart.GetShowBodyHeaderFields())
       {
