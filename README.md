@@ -1,3 +1,15 @@
+This Fork of hMailServer
+===========
+
+This was forked from the original repo hmailserver\hmailserver in order to implement a few fixes from other repos  
+Since i was never able to know what was the different from 5.6 to 5.7, but because the dbversion on this was 5704, i ended up giving it the 5.7 version.  
+
+The build on this fork starts at B5000, and to the version i added the fork so that i don't add to the version confusion.
+So, the version of hMailServer on this repo starts at "5.7.0-B5000-maxsnts"  
+
+I don't advise you using this fork since as i have no time (or knowledge) to properly maintain it.
+
+
 hMailServer
 ===========
 
