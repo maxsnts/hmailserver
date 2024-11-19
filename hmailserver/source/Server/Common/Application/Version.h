@@ -18,3 +18,8 @@ B5001
 [*]Update: Replacement for the old SA "winsock error 2" workaround/fix and eliminates (all) 
    EOF errors/warnings (and forced disconnects, possible related to HM5136?) altogether
 */
+
+/*
+POSSIBLE FIX TO IMPORT:
+IMAP FOLDERS: https://github.com/hgy29/hmailserver/commit/5834b12ca21fdfdda4e2c663e170e3379f5315ff
+*/
